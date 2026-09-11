@@ -12,21 +12,27 @@ import { FRESHA_BOOKING_URL } from "../../config/site"
         </div>
 
         <div class="grid lg:grid-cols-3 gap-6 lg:gap-8 mb-12 lg:mb-16 opacity-0" data-animate style="animation-delay: 100ms">
-            <CardServicios
-                serviceTitle="Corte"
-                servicePrice="$17.000"
-                serviceText= "Corte masculino adaptado a tu estilo, tipo de pelo y mantenimiento habitual."
-            />
-            <CardServicios
-                serviceTitle="Barba"
-                servicePrice="$12.000"
-                serviceText= "Perfilado y arreglo de barba según largo, forma del rostro y estilo buscado."
-            />
-            <CardServicios
-                serviceTitle="Combo"
-                servicePrice="$22.000"
-                serviceText= "Servicio integral para resolver corte y barba en una misma visita."
-            />
+            <div data-price-key="price_corte">
+                <CardServicios
+                    serviceTitle="Corte"
+                    servicePrice="$18.000"
+                    serviceText= "Corte masculino adaptado a tu estilo, tipo de pelo y mantenimiento habitual."
+                />
+            </div>
+            <div data-price-key="price_barba">
+                <CardServicios
+                    serviceTitle="Barba"
+                    servicePrice="$12.000"
+                    serviceText= "Perfilado y arreglo de barba según largo, forma del rostro y estilo buscado."
+                />
+            </div>
+            <div data-price-key="price_combo">
+                <CardServicios
+                    serviceTitle="Combo"
+                    servicePrice="$24.000"
+                    serviceText= "Servicio integral para resolver corte y barba en una misma visita."
+                />
+            </div>
         </div>
 
         <Button
@@ -37,3 +43,36 @@ import { FRESHA_BOOKING_URL } from "../../config/site"
         />
     </div>
   </section>
+
+<script>
+  import { getSiteSetting } from '../../lib/supabase/site';
+
+  async function loadPrices() {
+    const configs = [
+      { key: 'price_corte', selector: '[data-price-key="price_corte"]' },
+      { key: 'price_barba', selector: '[data-price-key="price_barba"]' },
+      { key: 'price_combo', selector: '[data-price-key="price_combo"]' },
+    ];
+
+    for (const { key, selector } of configs) {
+      const wrapper = document.querySelector(selector);
+      if (!wrapper) continue;
+      const priceSpan = wrapper.querySelector('span.text-accent.font-bold');
+      if (!priceSpan) continue;
+
+      try {
+        const value = await getSiteSetting(key);
+        if (value) {
+          const num = parseInt(value, 10);
+          if (!isNaN(num)) {
+            priceSpan.textContent = `$${num.toLocaleString('es-AR')}`;
+          }
+        }
+      } catch {
+        // Fallback: mantener el valor por defecto renderizado en servidor
+      }
+    }
+  }
+
+  loadPrices();
+</script>
